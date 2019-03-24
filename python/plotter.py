@@ -50,14 +50,14 @@ def plot_position(f_truth, f_gps_noise, f_imu_noise, estimates=None):
     ax2.plot(gps_x_truth, gps_y_truth, label='(X, Y) Position (Truth)', color='green')
     # Kalman
     if estimates is not None:
-        ax2.scatter(list(map(lambda k: k.x, estimates)), list(map(lambda k: k.y, estimates)), marker='.', color='red')
+        ax2.plot(list(map(lambda k: k.x, estimates)), list(map(lambda k: k.y, estimates)), marker='.', color='red')
     # Housework
     ax2.set_xlabel('time (seconds)')
     ax2.set_ylabel('m')
     ax2.set_title('Trajectory')
     ax2.legend()
-    # ax2.set_xlim(0, 17)
-    # ax2.set_ylim(0, 9)
+    ax2.set_xlim(0, 17)
+    ax2.set_ylim(-3, 9)
 
     # -- Finalization
     plt.subplots_adjust(hspace = 0.5)

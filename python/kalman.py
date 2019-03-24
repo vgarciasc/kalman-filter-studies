@@ -26,7 +26,7 @@ def get_measurements(filename_gps, filename_imu):
 
     for i in range(0, len(measurements_gps[0])):
         measurement = Measurement("GPS", measurements_gps[0][i], measurements_gps[1][i], measurements_gps[2][i], 0, 0, 0)
-        measurements.append(measurement)
+        # measurements.append(measurement)
 
     for i in range(0, len(measurements_imu[0])):
         measurement = Measurement("IMU", measurements_imu[0][i], 0, 0, 0, measurements_imu[1][i], measurements_imu[2][i])
@@ -47,8 +47,13 @@ def kalman_filter(measurements, R_gps, R_imu, debug):
     state = np.array([x0, y0, a0, v0, w0])[np.newaxis].T
 
     # Initial Process Matrixes
-    process_covariance = np.identity(5) * 500
-    Q = np.identity(5)
+    process_covariance = np.identity(5) * 1
+    Q = np.identity(5) * 0.05
+    Q[0][0] = 0.001
+    Q[1][1] = 0.001
+    Q[2][2] = 0.001
+    Q[3][3] = 10000
+    Q[4][4] = 10000
 
     # Constant Matrixes
     H_gps = np.array([
@@ -88,7 +93,7 @@ def kalman_filter(measurements, R_gps, R_imu, debug):
 
         state_predicted = np.array([
             x + v * delta_t * np.cos(np.radians(-a)),
-            y + v * delta_t * np.sin(np.radians(-a)),
+            y - v * delta_t * np.sin(np.radians(-a)),
             a + w * delta_t,
             v,
             w
@@ -97,11 +102,11 @@ def kalman_filter(measurements, R_gps, R_imu, debug):
 
         # Process Covariance Prediction
         jacobian_Fk = np.array([
-            [1, 0, - (v * delta_t * np.sin(-a)), delta_t * np.cos(-a),       0],
-            [0, 1,   (v * delta_t * np.sin(-a)), delta_t * np.sin(-a),       0],
-            [0, 0,                            1,                    0, delta_t],
-            [0, 0,                            0,                    1,       0],
-            [0, 0,                            0,                    0,       1]
+            [1, 0, - (v * delta_t * np.sin(np.radians(-a))),   delta_t * np.cos(np.radians(-a)),       0],
+            [0, 1, - (v * delta_t * np.cos(np.radians(-a))), - delta_t * np.sin(np.radians(-a)),       0],
+            [0, 0,                                        1,                                  0, delta_t],
+            [0, 0,                                        0,                                  1,       0],
+            [0, 0,                                        0,                                  0,       1]
         ])
         #pdb.set_trace()
 
@@ -147,14 +152,14 @@ def kalman_filter(measurements, R_gps, R_imu, debug):
     return estimation_history
 
 if __name__ == "__main__":
-    filename_gps_noise = 'data/unitySimulatorLog_1903241400_GPS_NOISE.txt'
-    filename_gps_truth = 'data/unitySimulatorLog_1903241400_GPS_TRUTH.txt'
-    filename_imu_noise = 'data/unitySimulatorLog_1903241400_IMU_NOISE.txt'
-    filename_imu_truth = 'data/unitySimulatorLog_1903241400_IMU_TRUTH.txt'
+    filename_gps_noise = 'data/unitySimulatorLog_1903241747_GPS_NOISE.txt'
+    filename_gps_truth = 'data/unitySimulatorLog_1903241747_GPS_TRUTH.txt'
+    filename_imu_noise = 'data/unitySimulatorLog_1903241747_IMU_NOISE.txt'
+    filename_imu_truth = 'data/unitySimulatorLog_1903241747_IMU_TRUTH.txt'
     measurements = get_measurements(filename_gps_noise, filename_imu_noise)
 
     error_gps_x, error_gps_y = calibration.get_error_gps(filename_gps_noise, filename_gps_truth)
-    covar_gps_x_y = np.cov(error_gps_x, error_gps_y)
+    covar_gps_x_y = np.dot(np.cov(error_gps_x, error_gps_y), 1000)
 
     error_imu_v, error_imu_w = calibration.get_error_imu(filename_imu_noise, filename_imu_truth)
     covar_imu_v_w = np.cov(error_imu_v, error_imu_w)
