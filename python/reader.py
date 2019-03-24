@@ -31,3 +31,25 @@ def read_imu_from_file(f):
             w.append(float(row[3]))
     
     return time, v, w
+
+def get_pos_from_imu(time, initial_x, initial_y, initial_a, imu_v_noise, imu_w_noise):
+    x = initial_x
+    y = initial_y
+    a = initial_a
+    imu_x = [x]
+    imu_y = [y]
+
+    for i in range(1, len(time)):
+        delta_t = time[i] - time[i-1]
+
+        v = imu_v_noise[i]
+        w = imu_w_noise[i]
+
+        a = a + w * delta_t
+        x = x + v * delta_t * np.cos(np.radians(-a))
+        y = y + v * delta_t * np.sin(np.radians(-a))
+
+        imu_x.append(x)
+        imu_y.append(-y)
+    
+    return imu_x, imu_y

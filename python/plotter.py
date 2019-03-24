@@ -5,8 +5,9 @@ import csv
 import pdb
 
 import reader
+import calibration
 
-def plot_position(f_gps_noise, f_gps_truth, f_imu_noise, f_imu_truth, estimates=None):
+def plot_position(f_truth, f_gps_noise, f_imu_noise, estimates=None):
     # -- Position as a Function
     ax1 = plt.subplot(2, 1, 1)
 
@@ -15,44 +16,22 @@ def plot_position(f_gps_noise, f_gps_truth, f_imu_noise, f_imu_truth, estimates=
     ax1.plot(time, gps_x_noise, label='X Position (GPS)', linestyle='--', color='lightblue')
     ax1.plot(time, gps_y_noise, label='Y Position (GPS)', linestyle='--', color='lightblue')
 
-    # IMU (Noise)
-    time, imu_v_noise, imu_w_noise = reader.read_imu_from_file(f_imu_noise)
-
     # Ground Truth
-    time, gps_x_truth, gps_y_truth = reader.read_gps_from_file(f_gps_truth)
+    time, gps_x_truth, gps_y_truth = reader.read_gps_from_file(f_truth)
     ax1.plot(time, gps_x_truth, label='X Position (Truth)', color='green')
     ax1.plot(time, gps_y_truth, label='Y Position (Truth)', color='green')
 
-    x = 0
-    y = 0
-    imu_x_noise = [x]
-    imu_y_noise = [y]
-    orientation = 90-57.85
-
-    for i in range(1, len(time)):
-        current_time = time[i]
-        delta_t = time[i] - time[i-1]
-
-        v = imu_v_noise[i]
-        w = imu_w_noise[i]
-
-        orientation = orientation + w * delta_t
-        x = x + v * delta_t * np.cos(np.radians(-orientation))
-        y = y + v * delta_t * np.sin(np.radians(-orientation))
-
-        imu_x_noise.append(x)
-        imu_y_noise.append(-y)
+    # IMU (Noise)
+    time, imu_v_noise, imu_w_noise = reader.read_imu_from_file(f_imu_noise)
+    imu_x_noise, imu_y_noise = reader.get_pos_from_imu(time, 0, 0, 80-57.85, imu_v_noise, imu_w_noise)
 
     ax1.plot(time, imu_x_noise, label='X Position (IMU)', linestyle='--', color='#f4b042')
     ax1.plot(time, imu_y_noise, label='Y Position (IMU)', linestyle='--', color='#f4b042')
 
-    # IMU (Truth)
-    # time, imu_v_truth, imu_w_truth = reader.read_imu_from_file(f_imu_truth)
-
-    # Kalman Estimates
+    # Kalman
     if estimates is not None:
-        ax1.plot(time, list(map(lambda k: k[0], estimates)), label='X Position (Kalman)')
-        ax1.plot(time, list(map(lambda k: k[1], estimates)), label='Y Position (Kalman)')
+        ax1.plot(list(map(lambda k: k.time, estimates)), list(map(lambda k: k.x, estimates)), label='X Position (Kalman)', color='red')
+        ax1.plot(list(map(lambda k: k.time, estimates)), list(map(lambda k: k.y, estimates)), label='Y Position (Kalman)', color='red')
 
     # Housework
     ax1.set_xlabel('time (seconds)')
@@ -69,6 +48,9 @@ def plot_position(f_gps_noise, f_gps_truth, f_imu_noise, f_imu_truth, estimates=
     ax2.scatter(imu_x_noise, imu_y_noise, label='(X, Y) Position (IMU)', marker='.', color='#f4b042')
     # Ground Truth
     ax2.plot(gps_x_truth, gps_y_truth, label='(X, Y) Position (Truth)', color='green')
+    # Kalman
+    if estimates is not None:
+        ax2.scatter(list(map(lambda k: k.x, estimates)), list(map(lambda k: k.y, estimates)), marker='.', color='red')
     # Housework
     ax2.set_xlabel('time (seconds)')
     ax2.set_ylabel('m')
@@ -86,5 +68,12 @@ if __name__ == "__main__":
     filename_gps_truth = 'data/unitySimulatorLog_1903241400_GPS_TRUTH.txt'
     filename_imu_noise = 'data/unitySimulatorLog_1903241400_IMU_NOISE.txt'
     filename_imu_truth = 'data/unitySimulatorLog_1903241400_IMU_TRUTH.txt'
-    
-    plot_position(filename_gps_noise, filename_gps_truth, filename_imu_noise, filename_imu_truth)
+
+    # plot_position(filename_gps_noise, filename_gps_truth, filename_imu_noise, filename_imu_truth)
+    error_gps_x, error_gps_y = calibration.get_error_gps(filename_gps_noise, filename_gps_truth)
+    covar_gps_x_y = np.cov(error_gps_x, error_gps_y)
+    print(covar_gps_x_y)
+
+    error_imu_v, error_imu_w = calibration.get_error_imu(filename_imu_noise, filename_imu_truth)
+    covar_imu_v_w = np.cov(error_imu_v, error_imu_w)
+    print(covar_imu_v_w)
