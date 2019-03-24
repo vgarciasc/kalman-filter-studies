@@ -7,10 +7,10 @@ import pdb
 filename = 'data/sensorLog_ACC_1.txt'
 
 def read_accel_from_file(f):
+    time = []
     acc_x = []
     acc_y = []
     acc_z = []
-    time = []
 
     with open(f, 'r') as csvfile:
         plots = csv.reader(csvfile, delimiter=',')
