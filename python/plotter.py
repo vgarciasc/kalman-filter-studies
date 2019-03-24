@@ -4,53 +4,22 @@ import scipy.stats as stats
 import csv
 import pdb
 
-filename_gps_noise = 'data/unitySimulatorLog_1903241400_GPS_NOISE.txt'
-filename_gps_truth = 'data/unitySimulatorLog_1903241400_GPS_TRUTH.txt'
-filename_imu_noise = 'data/unitySimulatorLog_1903241400_IMU_NOISE.txt'
-filename_imu_truth = 'data/unitySimulatorLog_1903241400_IMU_TRUTH.txt'
-
-def read_gps_from_file(f):
-    time = []
-    x = []
-    y = []
-
-    with open(f, 'r') as csvfile:
-        plots = csv.reader(csvfile, delimiter=',')
-        for row in plots:
-            time.append(float(row[0]))
-            x.append(float(row[2]))
-            y.append(float(row[3]))
-    
-    return time, x, y
-
-def read_imu_from_file(f):
-    time = []
-    v = []
-    w = []
-
-    with open(f, 'r') as csvfile:
-        plots = csv.reader(csvfile, delimiter=',')
-        for row in plots:
-            time.append(float(row[0]))
-            v.append(float(row[2]))
-            w.append(float(row[3]))
-    
-    return time, v, w
+import reader
 
 def plot_position(f_gps_noise, f_gps_truth, f_imu_noise, f_imu_truth, estimates=None):
     # -- Position as a Function
     ax1 = plt.subplot(2, 1, 1)
 
     # GPS (Noise)
-    time, gps_x_noise, gps_y_noise = read_gps_from_file(f_gps_noise)
+    time, gps_x_noise, gps_y_noise = reader.read_gps_from_file(f_gps_noise)
     ax1.plot(time, gps_x_noise, label='X Position (GPS)', linestyle='--', color='lightblue')
     ax1.plot(time, gps_y_noise, label='Y Position (GPS)', linestyle='--', color='lightblue')
 
     # IMU (Noise)
-    time, imu_v_noise, imu_w_noise = read_imu_from_file(f_imu_noise)
+    time, imu_v_noise, imu_w_noise = reader.read_imu_from_file(f_imu_noise)
 
     # Ground Truth
-    time, gps_x_truth, gps_y_truth = read_gps_from_file(f_gps_truth)
+    time, gps_x_truth, gps_y_truth = reader.read_gps_from_file(f_gps_truth)
     ax1.plot(time, gps_x_truth, label='X Position (Truth)', color='green')
     ax1.plot(time, gps_y_truth, label='Y Position (Truth)', color='green')
 
@@ -78,7 +47,7 @@ def plot_position(f_gps_noise, f_gps_truth, f_imu_noise, f_imu_truth, estimates=
     ax1.plot(time, imu_y_noise, label='Y Position (IMU)', linestyle='--', color='#f4b042')
 
     # IMU (Truth)
-    # time, imu_v_truth, imu_w_truth = read_imu_from_file(f_imu_truth)
+    # time, imu_v_truth, imu_w_truth = reader.read_imu_from_file(f_imu_truth)
 
     # Kalman Estimates
     if estimates is not None:
@@ -112,4 +81,10 @@ def plot_position(f_gps_noise, f_gps_truth, f_imu_noise, f_imu_truth, estimates=
     plt.subplots_adjust(hspace = 0.5)
     plt.show()
 
-plot_position(filename_gps_noise, filename_gps_truth, filename_imu_noise, filename_imu_truth)
+if __name__ == "__main__":
+    filename_gps_noise = 'data/unitySimulatorLog_1903241400_GPS_NOISE.txt'
+    filename_gps_truth = 'data/unitySimulatorLog_1903241400_GPS_TRUTH.txt'
+    filename_imu_noise = 'data/unitySimulatorLog_1903241400_IMU_NOISE.txt'
+    filename_imu_truth = 'data/unitySimulatorLog_1903241400_IMU_TRUTH.txt'
+    
+    plot_position(filename_gps_noise, filename_gps_truth, filename_imu_noise, filename_imu_truth)
