@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class Sensor : MonoBehaviour {
 
-	[SerializeField]
-	protected string path;
-
 	public delegate void recordDelegate(bool value);
 	public event recordDelegate RecordEvent;
 
@@ -16,9 +13,9 @@ public class Sensor : MonoBehaviour {
 		}
 	}
 
-	public static void WriteToFile(string path, string identifier, string[] lines) {
+	public static void WriteToFile(string identifier, string[] lines) {
 		string filename = "unitySimulatorLog_" + System.DateTime.Now.ToString("yyMMddHHmm") + "_" + identifier + ".txt";
-		string fullpath = System.IO.Path.Combine(path, filename);
+		string fullpath = System.IO.Path.Combine(GetPath(), filename);
         System.IO.File.WriteAllLines(fullpath, lines);
 	}
 
@@ -35,5 +32,10 @@ public class Sensor : MonoBehaviour {
 			print("Something went wrong.");
 			return 0f;
 		}
+	}
+
+	static string GetPath() {
+		var settings = GameObject.FindGameObjectWithTag("GameController").GetComponentInChildren<Settings>();
+		return settings.filepath;
 	}
 }

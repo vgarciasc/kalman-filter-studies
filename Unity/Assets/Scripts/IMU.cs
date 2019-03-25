@@ -30,8 +30,8 @@ public class IMU : Sensor {
 	void HandleRecordControl() {
 		if (Input.GetKeyDown(KeyCode.F1)) {
 			if (isRecording()) {
-				WriteToFile(this.path, IDENTIFIER + "_NOISE", imuNoiseHistory.ToArray());
-				WriteToFile(this.path, IDENTIFIER + "_TRUTH", imuTruthHistory.ToArray());
+				WriteToFile(IDENTIFIER + "_NOISE", imuNoiseHistory.ToArray());
+				WriteToFile(IDENTIFIER + "_TRUTH", imuTruthHistory.ToArray());
 				StopCoroutine(imuRecordCoroutine);
 				imuRecordCoroutine = null;
 			} else {
@@ -61,7 +61,7 @@ public class IMU : Sensor {
 		string time = Time.time.ToString();
 		string v = "";
 		string w = "";
-		
+
 		if (truth) {
 			v = this.rb.velocity.magnitude.ToString();
 			w = this.rb.angularVelocity.ToString();

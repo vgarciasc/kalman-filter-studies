@@ -15,8 +15,6 @@ public class GPS : Sensor {
 	List<string> gpsTruthHistory = new List<string>();
 	List<string> gpsNoiseHistory = new List<string>();
 	Coroutine gpsRecordCoroutine;
-
-	void Start () { }
 	
 	void Update () {
 		HandleRecordControl();
@@ -25,8 +23,8 @@ public class GPS : Sensor {
 	void HandleRecordControl() {
 		if (Input.GetKeyDown(KeyCode.F1)) {
 			if (isRecording()) {
-				WriteToFile(this.path, IDENTIFIER + "_NOISE", gpsNoiseHistory.ToArray());
-				WriteToFile(this.path, IDENTIFIER + "_TRUTH", gpsTruthHistory.ToArray());
+				WriteToFile(IDENTIFIER + "_NOISE", gpsNoiseHistory.ToArray());
+				WriteToFile(IDENTIFIER + "_TRUTH", gpsTruthHistory.ToArray());
 				StopCoroutine(gpsRecordCoroutine);
 				gpsRecordCoroutine = null;
 			} else {

@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class HudController : MonoBehaviour {
 
+	[SerializeField]
+	GameObject settingsMenu;
+
 	public Sensor GPS, IMU;
 	public Image recording;
 
@@ -16,5 +19,9 @@ public class HudController : MonoBehaviour {
 
 	void ToggleRecording(bool value) {
 		recording.color = value ? Color.red : Color.grey; 
+	}
+
+	public void ToggleSettingsMenu() {
+		settingsMenu.SetActive(!settingsMenu.activeSelf);
 	}
 }
