@@ -34,20 +34,20 @@ def get_error_imu(file_truth, file_imu):
 
 def get_calibration_values(sensor):
     if sensor == 'ACC':
-        bias = np.array([-0.593196, 0.2645659, 0.014033])[np.newaxis].T
+        bias = np.array([-0.545, 0.13717654110278344, 9.767822221154105])[np.newaxis].T
         scale = np.identity(3)
-        misalignment = np.identity(3)
+        # misalignment = np.identity(3)
         # bias = np.array([-0.675486, 0.188289, 0.0112134])[np.newaxis].T
         # scale = np.array([
         #     [0.997423,         0,      0],
         #     [       0,  0.998976,      0],
         #     [       0,         0, 1.0002]
         # ])
-        # misalignment = np.array([
-        #     [1, 0.00709268,   0.013406],
-        #     [0,          1, 0.00294083],
-        #     [0,          0,          1]
-        # ])
+        misalignment = np.array([
+            [1, 0.00709268,   0.013406],
+            [0,          1, 0.00294083],
+            [0,          0,          1]
+        ])
         # inverse_scale = np.array(1.00258, 1.00102, 0.999797)[np.newaxis].T 
     elif sensor == 'GYR':
         bias = np.array([0.020773, 0.0124993, -0.00443281])[np.newaxis].T
@@ -84,6 +84,22 @@ def calibrate_file(input_file, output_file, sensor):
 
     np.savetxt(output_file, calibrated_vectors, delimiter=",", fmt='%s')
 
-filename = 'data/2019-04-03-imu-smartphone-rest-y-clean.txt'
-filename_to_save = 'data/2019-04-03-imu-smartphone-rest-y-calibrated.txt'
-calibrate_file(filename, filename_to_save, 'ACC')
+def get_bias_resting_phone(file):
+    x = []
+    y = []
+    z = []
+
+    with open(file, 'r') as csvfile:
+        readings = csv.reader(csvfile, delimiter=',')
+        for reading in readings:
+            x.append(float(reading[2]))
+            y.append(float(reading[3]))
+            z.append(float(reading[4]))
+
+    return np.mean(x), np.mean(y), np.mean(z)
+
+filename = 'data/sensorLog_20190410T144148_clean.txt'
+# filename_to_save = 'data/2019-04-03-imu-smartphone-rest-y-calibrated.txt'
+# # calibrate_file(filename, filename_to_save, 'ACC')
+x, y, z = get_bias_resting_phone(filename)
+print("mean_x: " + str(x) + ", mean_y: " + str(y) + ", mean_z: " + str(z))

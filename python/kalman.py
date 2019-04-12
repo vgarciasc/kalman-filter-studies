@@ -26,7 +26,7 @@ def get_measurements(filename_gps, filename_imu):
 
     for i in range(0, len(measurements_gps[0])):
         measurement = Measurement("GPS", measurements_gps[0][i], measurements_gps[1][i], measurements_gps[2][i], 0, 0, 0)
-        # measurements.append(measurement)
+        measurements.append(measurement)
 
     for i in range(0, len(measurements_imu[0])):
         measurement = Measurement("IMU", measurements_imu[0][i], 0, 0, 0, measurements_imu[1][i], measurements_imu[2][i])
@@ -152,10 +152,10 @@ def kalman_filter(measurements, R_gps, R_imu, debug):
     return estimation_history
 
 if __name__ == "__main__":
-    filename_gps_noise = 'data/unitySimulatorLog_1903241747_GPS_NOISE.txt'
-    filename_gps_truth = 'data/unitySimulatorLog_1903241747_GPS_TRUTH.txt'
-    filename_imu_noise = 'data/unitySimulatorLog_1903241747_IMU_NOISE.txt'
-    filename_imu_truth = 'data/unitySimulatorLog_1903241747_IMU_TRUTH.txt'
+    filename_gps_noise = 'data/data/unitySimulatorLog_1903312006_GPS_NOISE.txt'
+    filename_gps_truth = 'data/data/unitySimulatorLog_1903312006_GPS_TRUTH.txt'
+    filename_imu_noise = 'data/data/unitySimulatorLog_1903312006_IMU_NOISE.txt'
+    filename_imu_truth = 'data/data/unitySimulatorLog_1903312006_IMU_TRUTH.txt'
     measurements = get_measurements(filename_gps_noise, filename_imu_noise)
 
     error_gps_x, error_gps_y = calibration.get_error_gps(filename_gps_noise, filename_gps_truth)

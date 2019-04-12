@@ -4,7 +4,7 @@ import scipy.stats as stats
 import csv
 import pdb
 
-filename = 'data/sensorLog_ACC_1.txt'
+filename = 'data/2019-04-03-imu-smartphone-rest-y-calibrated-easy.txt'
 
 def read_accel_from_file(f):
     time = []
@@ -15,7 +15,7 @@ def read_accel_from_file(f):
     with open(f, 'r') as csvfile:
         plots = csv.reader(csvfile, delimiter=',')
         for row in plots:
-            time.append(int(row[1]))
+            time.append(int(row[0]))
             acc_x.append(float(row[2]))
             acc_y.append(float(row[3]))
             acc_z.append(float(row[4]))
@@ -82,6 +82,8 @@ def plot_histogram(f):
     ax3.set_ylabel('Probability')
     ax3.legend()
 
+    print(np.sqrt(np.var(acc_y)**2 + np.var(acc_x)**2 + np.var(acc_z)**2))
+
     plt.show()
 
 def kalman_filter(f):
@@ -126,10 +128,10 @@ def kalman_filter(f):
         estimates_history.append(current_estimate)
     return estimates_history
 
-estimates = kalman_filter(filename)
+# estimates = kalman_filter(filename)
 
-final_estimate = estimates[len(estimates) - 1]
-print("final_estimate: [acc_x: " + str(final_estimate[0]) + ", acc_y: " + str(final_estimate[1]) + ", acc_z: " + str(final_estimate[2]) + "]")
+# final_estimate = estimates[len(estimates) - 1]
+# print("final_estimate: [acc_x: " + str(final_estimate[0]) + ", acc_y: " + str(final_estimate[1]) + ", acc_z: " + str(final_estimate[2]) + "]")
 
 # plot_acceleration(filename, estimates)
 
